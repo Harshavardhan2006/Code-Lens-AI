@@ -1,0 +1,49 @@
+# CodeLens AI 🔍✨
+
+CodeLens AI is a modern, web-based application designed to provide structured, multi-level explanations for code snippets. By leveraging the power of Google's Generative AI (Gemini), CodeLens AI helps developers, students, and code reviewers instantly understand complex logic, syntax, and concepts within any given codebase.
+
+**🌍 Live Demo:** [CodeLens AI](https://code-lens-ai-nine.vercel.app/)
+
+## 🚀 Features
+
+- **AI-Powered Code Analysis**: Get in-depth, structured explanations of your code in seconds.
+- **Multi-Level Explanations**: Understand code at a high-level overview or dive deep into statement-by-statement breakdowns.
+- **Syntax Highlighting**: Beautifully formatted code blocks with syntax highlighting for better readability.
+- **Modern UI/UX**: A premium, responsive design with a sleek interface built using React and Tailwind CSS.
+- **Fast & Lightweight**: Built on top of Vite for rapid frontend performance and an Express.js backend.
+
+## 🛠️ Tech Stack
+
+### Frontend
+- **React (v18)** - Library for building the user interface.
+- **Vite** - Next-generation frontend tooling for fast builds.
+- **TypeScript** - Strongly typed programming language.
+- **Tailwind CSS** - Utility-first CSS framework for styling.
+- **Lucide React** - Beautiful and consistent icons.
+- **React Syntax Highlighter** - For elegantly displaying formatted code.
+
+### Backend
+- **Node.js & Express.js** - Fast, unopinionated, minimalist web framework.
+- **Google Generative AI SDK** - Integration with Google's latest Gemini models for powerful LLM responses.
+- **Cors & Dotenv** - Middleware for cross-origin requests and environment variable management.
+- **ES Modules** - Modern JavaScript module system.
+
+## 📁 Folder Structure
+
+```text
+CodeLens-AI/
+├── backend/                # Express.js server & AI integration
+│   ├── src/                # Backend source code (if any)
+│   ├── package.json
+│   ├── server.js           # Main application entry point
+│   └── .env                # Environment variables (API Keys)
+└── frontend/               # React & Vite application
+    ├── public/
+    ├── src/
+    │   ├── components/     # Reusable UI components
+    │   ├── App.tsx         # Main application component
+    │   └── main.tsx        # React DOM rendering
+    ├── package.json
+    ├── tailwind.config.js
+    └── vite.config.ts
+```
