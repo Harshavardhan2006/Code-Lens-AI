@@ -173,11 +173,11 @@ function FlowchartCanvas({ data }: { data: FlowchartData }) {
                 <rect x={cx - NODE_W / 2} y={cy - NODE_H / 2} width={NODE_W} height={NODE_H} rx={isRound ? NODE_H / 2 : 6} fill={colors.fill} stroke={colors.stroke} strokeWidth="1.5" />
               )}
               <foreignObject x={cx - NODE_W / 2 + 4} y={cy - NODE_H / 2} width={NODE_W - 8} height={NODE_H}>
-                <div xmlns="http://www.w3.org/1999/xhtml" style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', color: colors.text, textAlign: 'center', lineHeight: '1.3', padding: '2px', fontFamily: 'monospace' }}>
+                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', color: colors.text, textAlign: 'center', lineHeight: '1.3', padding: '2px', fontFamily: 'monospace' }}>
                   {node.label}
                 </div>
               </foreignObject>
-            </g>
+            </g>  
           );
         })}
       </svg>
