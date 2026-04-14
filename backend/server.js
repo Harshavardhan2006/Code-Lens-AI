@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import Groq from 'groq-sdk';
 
 dotenv.config();
 
@@ -11,25 +11,23 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-const ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-
-const getModel = () => ai.getGenerativeModel({
-  model: process.env.GEMINI_MODEL || 'gemini-1.5-flash',
-  generationConfig: { responseMimeType: "application/json" }
-});
-
-const getTextModel = () => ai.getGenerativeModel({
-  model: process.env.GEMINI_MODEL || 'gemini-1.5-flash',
-});
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+// Llama 3 70B is excellent for coding tasks and very fast on Groq
+const GROQ_MODEL = process.env.GROQ_MODEL || 'llama3-70b-8192';
 
 app.post('/api/detect-language', async (req, res) => {
   try {
     const { code } = req.body;
     if (!code) return res.status(400).json({ error: 'Missing code.' });
     const prompt = `Detect the programming language of this code snippet. Return ONLY a JSON object with a single key "language" whose value is a lowercase string matching one of: javascript, python, java, cpp, typescript, go, rust, csharp, php, ruby, swift, kotlin. If unsure, return your best guess.\n\nCode:\n\`\`\`\n${code.slice(0, 500)}\n\`\`\``;
-    const model = getModel();
-    const response = await model.generateContent(prompt);
-    const text = response.response.text();
+    
+    const response = await groq.chat.completions.create({
+      messages: [{ role: 'user', content: prompt }],
+      model: GROQ_MODEL,
+      response_format: { type: "json_object" }
+    });
+    
+    const text = response.choices[0].message.content;
     const clean = text.replace(/```json|```/g, '').trim();
     res.json(JSON.parse(clean));
   } catch (error) {
@@ -54,9 +52,14 @@ Return your response STRICTLY as a JSON object:
   "lineByLine": [{ "line": 1, "code": "first line of code", "explanation": "what this line does" }]
 }
 Ensure the response is valid JSON and nothing else. Do not wrap it in markdown codeblocks.`;
-    const model = getModel();
-    const response = await model.generateContent(prompt);
-    const text = response.response.text();
+    
+    const response = await groq.chat.completions.create({
+      messages: [{ role: 'user', content: prompt }],
+      model: GROQ_MODEL,
+      response_format: { type: "json_object" }
+    });
+    
+    const text = response.choices[0].message.content;
     const clean = text.replace(/```json|```/g, '').trim();
     res.json(JSON.parse(clean));
   } catch (error) {
@@ -95,9 +98,14 @@ Code:
 \`\`\`${language}
 ${code}
 \`\`\``;
-    const model = getModel();
-    const response = await model.generateContent(prompt);
-    const text = response.response.text();
+    
+    const response = await groq.chat.completions.create({
+      messages: [{ role: 'user', content: prompt }],
+      model: GROQ_MODEL,
+      response_format: { type: "json_object" }
+    });
+    
+    const text = response.choices[0].message.content;
     const clean = text.replace(/```json|```/g, '').trim();
     res.json(JSON.parse(clean));
   } catch (error) {
@@ -123,9 +131,14 @@ Original code:
 \`\`\`${language}
 ${code}
 \`\`\``;
-    const model = getModel();
-    const response = await model.generateContent(prompt);
-    const text = response.response.text();
+    
+    const response = await groq.chat.completions.create({
+      messages: [{ role: 'user', content: prompt }],
+      model: GROQ_MODEL,
+      response_format: { type: "json_object" }
+    });
+    
+    const text = response.choices[0].message.content;
     const clean = text.replace(/```json|```/g, '').trim();
     res.json(JSON.parse(clean));
   } catch (error) {
@@ -160,9 +173,14 @@ Code:
 \`\`\`${language}
 ${code}
 \`\`\``;
-    const model = getModel();
-    const response = await model.generateContent(prompt);
-    const text = response.response.text();
+    
+    const response = await groq.chat.completions.create({
+      messages: [{ role: 'user', content: prompt }],
+      model: GROQ_MODEL,
+      response_format: { type: "json_object" }
+    });
+    
+    const text = response.choices[0].message.content;
     const clean = text.replace(/```json|```/g, '').trim();
     res.json(JSON.parse(clean));
   } catch (error) {
@@ -175,16 +193,19 @@ app.post('/api/chat', async (req, res) => {
     const { code, language, explanation, question, history } = req.body;
     if (!code || !question) return res.status(400).json({ error: 'Missing code or question.' });
     const systemContext = `You are CodeLens AI, an expert code explainer assistant. The user is asking follow-up questions about a code snippet that was already explained.\n\nCode (${language}):\n\`\`\`${language}\n${code}\n\`\`\`\n\nPrevious explanation summary: ${explanation?.summary || 'N/A'}\n\nAnswer concisely and clearly. If showing code examples, wrap them in triple backticks with the language.`;
+    
     const messages = [
-      { role: 'user', parts: [{ text: systemContext }] },
-      { role: 'model', parts: [{ text: 'Understood. I have full context of the code and explanation. Ask me anything about it.' }] },
-      ...(history || []).map((msg) => ({ role: msg.role, parts: [{ text: msg.content }] })),
-      { role: 'user', parts: [{ text: question }] },
+      { role: 'system', content: systemContext },
+      ...(history || []).map((msg) => ({ role: msg.role === 'model' ? 'assistant' : 'user', content: msg.content })),
+      { role: 'user', content: question },
     ];
-    const model = getTextModel();
-    const chat = model.startChat({ history: messages.slice(0, -1) });
-    const result = await chat.sendMessage(question);
-    res.json({ answer: result.response.text() });
+    
+    const response = await groq.chat.completions.create({
+      messages: messages,
+      model: GROQ_MODEL,
+    });
+    
+    res.json({ answer: response.choices[0].message.content });
   } catch (error) {
     res.status(500).json({ error: error.message || 'Failed to answer question.' });
   }
