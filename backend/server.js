@@ -12,8 +12,8 @@ app.use(cors());
 app.use(express.json());
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-// Llama 3 70B is excellent for coding tasks and very fast on Groq
-const GROQ_MODEL = process.env.GROQ_MODEL || 'llama3-70b-8192';
+// Llama 3.3 70B is excellent for coding tasks and very fast on Groq
+const GROQ_MODEL = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
 
 app.post('/api/detect-language', async (req, res) => {
   try {
