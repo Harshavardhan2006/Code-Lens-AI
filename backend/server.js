@@ -14,12 +14,12 @@ app.use(express.json());
 const ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const getModel = () => ai.getGenerativeModel({
-  model: 'gemini-2.5-flash',
+  model: process.env.GEMINI_MODEL || 'gemini-1.5-flash',
   generationConfig: { responseMimeType: "application/json" }
 });
 
 const getTextModel = () => ai.getGenerativeModel({
-  model: 'gemini-2.5-flash',
+  model: process.env.GEMINI_MODEL || 'gemini-1.5-flash',
 });
 
 app.post('/api/detect-language', async (req, res) => {
